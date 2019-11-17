@@ -1,0 +1,13 @@
+{
+  "ConnectionStrings": {
+    "ExchangeRateDB": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ExchangeRateDB;Integrated Security=True;Connect Timeout=30;"
+  },
+  "exclude": [
+    "**/bin",
+    "**/bower_components",
+    "**/jspm_packages",
+    "**/node_modules",
+    "**/obj",
+    "**/platforms"
+  ]
+}
