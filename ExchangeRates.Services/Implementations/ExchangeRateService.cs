@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using ExchangeRates.Core.Entities;
+using ExchangeRates.Core.Extensions;
 using ExchangeRates.Data.DataSource;
+using ExchangeRates.Data.Models;
 using ExchangeRates.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -52,12 +56,16 @@ namespace ExchangeRates.Services.Implementations
                 {
                     foreach (var item in rate.Rates)
                     {
-                        db.Rates.Add(new Data.Models.Rates
+                        if (item.IsValid())
                         {
-                            CountryCode = item.Key,
-                            Rate = item.Value,
-                            RateDate = DateTime.Parse(rate.Date)
-                        });
+                            var currency = await GetOrAddCountry(item.Key, db);
+                            db.Rates.Add(new Rates
+                            {
+                                Currency = currency,
+                                Rate = item.Value,
+                                RateDate = DateTime.Parse(rate.Date)
+                            });
+                        }
                     }
 
                     await db.SaveChangesAsync();
@@ -69,6 +77,17 @@ namespace ExchangeRates.Services.Implementations
             {
                 throw e;
             }
+        }
+
+        private async Task<Currency> GetOrAddCountry(string code, ExchangeRateDBContext db)
+        {
+            var country = await db.Currency.FirstOrDefaultAsync(x => x.Code == code);
+            if (country.IsNotNull())
+            {
+                return country;
+            }
+
+            return new Currency { Code = code, Name = "Unknown currency" };
         }
     }
 }

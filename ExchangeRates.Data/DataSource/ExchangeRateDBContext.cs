@@ -19,7 +19,8 @@ namespace ExchangeRates.Data.DataSource
         }
 
         public virtual DbSet<Rates> Rates { get; set; }
-    
+        public virtual DbSet<Currency> Currency { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
